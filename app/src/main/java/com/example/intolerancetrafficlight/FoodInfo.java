@@ -4,11 +4,11 @@ import java.util.List;
 
 
 public class FoodInfo {
-    String brand;
-    String Name;
-
-    List<String> additives;
-    List<Ingredient> Ingredients;
+    private String brand;
+    private String Name;
+    private Exception exception;
+    private List<String> additives;
+    private List<Ingredient> Ingredients;
 
     public String getBrand() {
         return brand;
@@ -36,6 +36,14 @@ public class FoodInfo {
 
     public List<String> getAdditives() {
         return additives;
+    }
+
+    public Exception getException() {
+        return exception;
+    }
+
+    public void setException(Exception exception) {
+        this.exception = exception;
     }
 
     public void setAdditives(List<String> additives) {

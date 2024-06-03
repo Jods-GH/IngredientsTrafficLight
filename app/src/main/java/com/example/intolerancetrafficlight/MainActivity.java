@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -82,8 +83,12 @@ public class MainActivity extends AppCompatActivity {
         productTextView.setText("Product");
         brandTextView.setText("Brand");
         if(info != null){
-            productTextView.setText(info.Name);
-            brandTextView.setText(info.brand);
+            if(info.getName()!=null)
+                productTextView.setText(info.getName());
+            if(info.getBrand()!=null)
+            brandTextView.setText(info.getBrand());
+            if(info.getException()!=null)
+                Toast.makeText(this, info.getException().getLocalizedMessage(), Toast.LENGTH_LONG).show();
             if(info.getIngredients()!=null)
                 info.getIngredients().forEach(ingredient ->{
                     TextView textView = new TextView(this);

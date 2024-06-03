@@ -3,6 +3,7 @@ package com.example.intolerancetrafficlight;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,12 +49,19 @@ public class RestDataRequestor extends AsyncTask<String, Void, FoodInfo> {
     }
 
     @Override
+    protected void onCancelled() {
+        super.onCancelled();
+        progressDialog.dismiss(); // disable progress dialog
+    }
+
+    @Override
     protected FoodInfo doInBackground(String... strings) {
         System.out.println(strings);
         for(String barcode:strings){
             //prepare url request
             String urlString = "https://world.openfoodfacts.org/api/v3/product/" + barcode + ".json";
             System.out.println(urlString);
+            FoodInfo info = new FoodInfo();
             try {
                 // open url connection
                 URL url = new URL(urlString);
@@ -63,7 +71,6 @@ public class RestDataRequestor extends AsyncTask<String, Void, FoodInfo> {
                 System.out.println(con.getResponseCode());
                 if (con.getResponseCode() == 200) {
                     // Success
-                    FoodInfo info = new FoodInfo();
                     // create Json String from input and convert it to JSonObject
                     BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
                     String inputLine;
@@ -75,32 +82,41 @@ public class RestDataRequestor extends AsyncTask<String, Void, FoodInfo> {
                     JSONObject jObject = new JSONObject(content.toString());
                     info.setBrand(jObject.getJSONObject ("product").getString("brands"));
                     info.setName(jObject.getJSONObject ("product").getString("product_name"));
-                    JSONArray ingredients = jObject.getJSONObject ("product").getJSONArray ("ingredients");
-                    List<Ingredient> ingredientList = new ArrayList<>();
-                    for (int i= 0 ; i<ingredients.length();i++){
-                        Ingredient ingredient = new Ingredient(ingredients.getJSONObject(i));
-                        ingredientList.add(ingredient);
+                    if(jObject.getJSONObject ("product").has("ingredients")){
+                        JSONArray ingredients = jObject.getJSONObject ("product").getJSONArray ("ingredients");
+                        List<Ingredient> ingredientList = new ArrayList<>();
+                        for (int i= 0 ; i<ingredients.length();i++){
+                            Ingredient ingredient = new Ingredient(ingredients.getJSONObject(i));
+                            ingredientList.add(ingredient);
+                        }
+                        info.setIngredients(ingredientList);
                     }
-                    info.setIngredients(ingredientList);
-                    List<String> additiveList = new ArrayList<>();
-                    JSONArray additives = jObject.getJSONObject ("product").getJSONArray ("additives_tags");
-                    for (int i= 0 ; i<additives.length();i++){
-                        additiveList.add(additives.getString(i));
+                    if(jObject.getJSONObject ("product").has("additives_tags")){
+                        List<String> additiveList = new ArrayList<>();
+                        JSONArray additives = jObject.getJSONObject ("product").getJSONArray ("additives_tags");
+                        for (int i= 0 ; i<additives.length();i++){
+                            additiveList.add(additives.getString(i));
+                        }
+                        info.setAdditives(additiveList);
                     }
-                    info.setAdditives(additiveList);
+
                     con.disconnect();
-                    return info;
                 }
             } catch (MalformedURLException | ProtocolException e) {
                 System.out.println(e);
                 e.printStackTrace();
+                info.setException(e);
+
             } catch (IOException e) {
                 System.out.println(e);
                 e.printStackTrace();
+                info.setException(e);
             } catch (JSONException e) {
                 System.out.println(e);
                 e.printStackTrace();
+                info.setException(e);
             }
+            return info;
         }
         return null;
     }
