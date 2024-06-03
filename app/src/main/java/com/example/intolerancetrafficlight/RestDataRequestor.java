@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -14,6 +15,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class RestDataRequestor extends AsyncTask<String, Void, FoodInfo> {
@@ -72,6 +75,19 @@ public class RestDataRequestor extends AsyncTask<String, Void, FoodInfo> {
                     JSONObject jObject = new JSONObject(content.toString());
                     info.setBrand(jObject.getJSONObject ("product").getString("brands"));
                     info.setName(jObject.getJSONObject ("product").getString("product_name"));
+                    JSONArray ingredients = jObject.getJSONObject ("product").getJSONArray ("ingredients");
+                    List<Ingredient> ingredientList = new ArrayList<>();
+                    for (int i= 0 ; i<ingredients.length();i++){
+                        Ingredient ingredient = new Ingredient(ingredients.getJSONObject(i));
+                        ingredientList.add(ingredient);
+                    }
+                    info.setIngredients(ingredientList);
+                    List<String> additiveList = new ArrayList<>();
+                    JSONArray additives = jObject.getJSONObject ("product").getJSONArray ("additives_tags");
+                    for (int i= 0 ; i<additives.length();i++){
+                        additiveList.add(additives.getString(i));
+                    }
+                    info.setAdditives(additiveList);
                     con.disconnect();
                     return info;
                 }
