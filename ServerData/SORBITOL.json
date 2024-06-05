@@ -1,4 +1,8 @@
 {
+    "localizedNames":{
+        "de": "Sorbit",
+        "en": "Sorbitol"
+    },
     "ingredients": [
         {
             "nameString": "E420",
