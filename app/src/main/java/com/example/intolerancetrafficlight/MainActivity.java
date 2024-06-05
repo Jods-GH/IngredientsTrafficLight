@@ -1,13 +1,15 @@
 package com.example.intolerancetrafficlight;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +24,9 @@ import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions;
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
     TextView productTextView;
     TextView brandTextView;
@@ -30,6 +35,10 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout ingredientsLinearLayout;
     Button scanButton;
     Resources res;
+    Spinner intoleranceSpinner;
+
+    IntoleranceInfo intolerances;
+    Intolerances currentIntolerance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
         brandTextView = findViewById(R.id.BrandText);
         ingredients = findViewById(R.id.IngredientsScrollView);
         ingredientsLinearLayout = findViewById(R.id.IngredientsLinearLayout);
+        intoleranceSpinner = findViewById(R.id.intoleranceSpinner);
         res = getResources();
         GmsBarcodeScannerOptions options = new GmsBarcodeScannerOptions.Builder()
                 .setBarcodeFormats(
@@ -55,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         GmsBarcodeScanner scanner = GmsBarcodeScanning.getClient(this);
         Context ctx = this;
+        FoodIntoleranceRequestor intoleranceRequestor = new FoodIntoleranceRequestor(ctx);
+        intoleranceRequestor.execute(Intolerances.SORBITOL);
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -86,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
             if(info.getName()!=null)
                 productTextView.setText(info.getName());
             if(info.getBrand()!=null)
-            brandTextView.setText(info.getBrand());
+                brandTextView.setText(info.getBrand());
             if(info.getException()!=null)
                 Toast.makeText(this, info.getException().getLocalizedMessage(), Toast.LENGTH_LONG).show();
             if(info.getIngredients()!=null)
@@ -108,5 +120,29 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         }
+    }
+    public void handleDataReturn(IntoleranceInfo info){
+        intolerances = info;
+        ArrayList<String> options=new ArrayList<String>();
+        for(Intolerances intolerance:intolerances.getIntolerances().keySet()){
+            options.add(intolerance.name());
+        }
+        List<Intolerance> intoleratedIngredients = intolerances.getIntolerances().get(Intolerances.SORBITOL);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,options);
+        intoleranceSpinner.setAdapter(adapter);
+        System.out.println(info.getIntolerances().size());
+
+        intoleranceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                // when the user selects an author we request the authors book Data to choose from
+                currentIntolerance = Intolerances.valueOf(intoleranceSpinner.getSelectedItem().toString());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 }
