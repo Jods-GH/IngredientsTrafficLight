@@ -26,6 +26,7 @@ import java.util.Map;
 public class FoodIntoleranceRequestor extends AsyncTask<IntoleranceEnum, Void, IntoleranceInfo> {
     ProgressDialog progressDialog;
     Context context;
+    final static  int JSON_VERSION = 1;
 
 
     public FoodIntoleranceRequestor(Context context) {
@@ -78,7 +79,9 @@ public class FoodIntoleranceRequestor extends AsyncTask<IntoleranceEnum, Void, I
                     }
                     in.close();
                     JSONObject jObject = new JSONObject(content.toString());
-
+                    Integer version = jObject.getInt("version");
+                    if( version != JSON_VERSION)
+                        throw new UnsupportedOperationException (String.format("Version of intolerance is not correct: expected %d got %d2",JSON_VERSION,version));
                     JSONArray ingredients = jObject.getJSONArray ("badIngredients");
                     List<ToleratedIngredient> intolernacesList = new ArrayList<>();
                     for (int i= 0 ; i<ingredients.length();i++){
@@ -86,7 +89,7 @@ public class FoodIntoleranceRequestor extends AsyncTask<IntoleranceEnum, Void, I
                         ToleratedIngredient intoleranceIngredient = new ToleratedIngredient(thisObject.getString("nameString"),thisObject.getInt("ciqualFoodCode"),false);
                         intolernacesList.add(intoleranceIngredient);
                     }
-                    JSONArray toleratedIngredients = jObject.getJSONArray ("goodIngredients");
+                    JSONArray toleratedIngredients = jObject.getJSONArray ("saveIngredients");
                     List<ToleratedIngredient> tolernacesList = new ArrayList<>();
                     for (int i= 0 ; i<toleratedIngredients.length();i++){
                         JSONObject thisObject = toleratedIngredients.getJSONObject(i);
