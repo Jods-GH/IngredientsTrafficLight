@@ -17,11 +17,13 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 
-public class FoodIntoleranceRequestor extends AsyncTask<Intolerances, Void, IntoleranceInfo> {
+public class FoodIntoleranceRequestor extends AsyncTask<IntoleranceEnum, Void, IntoleranceInfo> {
     ProgressDialog progressDialog;
     Context context;
 
@@ -50,9 +52,11 @@ public class FoodIntoleranceRequestor extends AsyncTask<Intolerances, Void, Into
     }
 
     @Override
-    protected IntoleranceInfo doInBackground(Intolerances... intolerances) {
-        Map<Intolerances, List<Intolerance>> intInfoMap = new HashMap<Intolerances, List<Intolerance>>();
-        for(Intolerances intolerance:intolerances){
+    protected IntoleranceInfo doInBackground(IntoleranceEnum... intolerances) {
+        Map<IntoleranceEnum, Intolerance> intInfoMap = new HashMap<IntoleranceEnum, Intolerance>();
+        Map<IntoleranceEnum, Map<Locale,String>> localizedNamesMap= new HashMap<>();
+        Map<IntoleranceEnum, String[]> supportedLocales = new HashMap<>();
+        for(IntoleranceEnum intolerance:intolerances){
             //prepare url request
             String urlString = "https://raw.githubusercontent.com/Jods-GH/IngredientsTrafficLight/master/ServerData/" + intolerance + ".json";
 
@@ -74,15 +78,37 @@ public class FoodIntoleranceRequestor extends AsyncTask<Intolerances, Void, Into
                     }
                     in.close();
                     JSONObject jObject = new JSONObject(content.toString());
-                    JSONArray ingredients = jObject.getJSONArray ("ingredients");
-                    List<Intolerance> intolernacesList = new ArrayList<>();
+
+                    JSONArray ingredients = jObject.getJSONArray ("badIngredients");
+                    List<ToleratedIngredient> intolernacesList = new ArrayList<>();
                     for (int i= 0 ; i<ingredients.length();i++){
                         JSONObject thisObject = ingredients.getJSONObject(i);
-                        Intolerance intoleranceIngredient = new Intolerance(thisObject.getString("nameString"),thisObject.getInt("ciqualFoodCode"));
+                        ToleratedIngredient intoleranceIngredient = new ToleratedIngredient(thisObject.getString("nameString"),thisObject.getInt("ciqualFoodCode"),false);
                         intolernacesList.add(intoleranceIngredient);
                     }
+                    JSONArray toleratedIngredients = jObject.getJSONArray ("goodIngredients");
+                    List<ToleratedIngredient> tolernacesList = new ArrayList<>();
+                    for (int i= 0 ; i<toleratedIngredients.length();i++){
+                        JSONObject thisObject = toleratedIngredients.getJSONObject(i);
+                        ToleratedIngredient intoleranceIngredient = new ToleratedIngredient(thisObject.getString("nameString"),thisObject.getInt("ciqualFoodCode"),false);
+                        tolernacesList.add(intoleranceIngredient);
+                    }
+                    Intolerance intol = new Intolerance(intolerance,intolernacesList,tolernacesList);
 
-                    intInfoMap.put(intolerance,intolernacesList);
+                    JSONObject localizedNames = jObject.getJSONObject("localizedNames");
+                    String[] locales = new String[localizedNames.length()];
+                    Map<Locale,String> localizedMap = new HashMap<>();
+                    int i = 0;
+                    for (Iterator<String> it = localizedNames.keys(); it.hasNext(); ) {
+                        String key = it.next();
+                        String translation = localizedNames.getString(key);
+                        localizedMap.put(Locale.forLanguageTag(key),translation);
+                        locales[i] = key;
+                        i++;
+                    }
+                    localizedNamesMap.put(intolerance,localizedMap);
+                    supportedLocales.put(intolerance,locales);
+                    intInfoMap.put(intolerance,intol);
                     con.disconnect();
                 }
             } catch (MalformedURLException | ProtocolException e) {
@@ -94,7 +120,7 @@ public class FoodIntoleranceRequestor extends AsyncTask<Intolerances, Void, Into
             }
         }
         if(!intInfoMap.isEmpty())
-            return new IntoleranceInfo(intInfoMap);
+            return new IntoleranceInfo(intInfoMap,localizedNamesMap,supportedLocales);
         else
             return null;
     }

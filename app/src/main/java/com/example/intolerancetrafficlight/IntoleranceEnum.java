@@ -1,5 +1,5 @@
 package com.example.intolerancetrafficlight;
 
-public enum Intolerances {
+public enum IntoleranceEnum {
     SORBITOL
 }

@@ -3,6 +3,7 @@ package com.example.intolerancetrafficlight;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.LocaleList;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -25,7 +26,10 @@ import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions;
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     TextView productTextView;
@@ -38,7 +42,9 @@ public class MainActivity extends AppCompatActivity {
     Spinner intoleranceSpinner;
 
     IntoleranceInfo intolerances;
-    Intolerances currentIntolerance;
+    IntoleranceEnum currentIntolerance;
+
+    LocaleList currentLocale;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
         ingredientsLinearLayout = findViewById(R.id.IngredientsLinearLayout);
         intoleranceSpinner = findViewById(R.id.intoleranceSpinner);
         res = getResources();
+        currentLocale = res.getConfiguration().getLocales();
         GmsBarcodeScannerOptions options = new GmsBarcodeScannerOptions.Builder()
                 .setBarcodeFormats(
                         Barcode.FORMAT_EAN_8,
@@ -66,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         GmsBarcodeScanner scanner = GmsBarcodeScanning.getClient(this);
         Context ctx = this;
         FoodIntoleranceRequestor intoleranceRequestor = new FoodIntoleranceRequestor(ctx);
-        intoleranceRequestor.execute(Intolerances.SORBITOL);
+        intoleranceRequestor.execute(IntoleranceEnum.SORBITOL);
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -124,19 +131,31 @@ public class MainActivity extends AppCompatActivity {
     public void handleDataReturn(IntoleranceInfo info){
         intolerances = info;
         ArrayList<String> options=new ArrayList<String>();
-        for(Intolerances intolerance:intolerances.getIntolerances().keySet()){
-            options.add(intolerance.name());
+        Map<String, IntoleranceEnum> intoleranceMap = new HashMap<>();
+        for(IntoleranceEnum intolerance:intolerances.getIntolerances().keySet()){
+            Locale localeToUse = currentLocale.getFirstMatch(info.supportecLocales.get(intolerance));
+            System.out.println(info.localizedNames);
+            String localizedName = info.localizedNames.get(intolerance).get(localeToUse) !=null? info.localizedNames.get(intolerance).get(localeToUse) :intolerance.name();
+            intoleranceMap.put(localizedName,intolerance);
+            options.add(localizedName);
         }
-        List<Intolerance> intoleratedIngredients = intolerances.getIntolerances().get(Intolerances.SORBITOL);
+        Intolerance intolerated = intolerances.getIntolerances().get(IntoleranceEnum.SORBITOL);
+        System.out.println("not tolerated");
+        intolerated.getIntoleratedIngredients().forEach(ing->{
+            System.out.println(ing.getNameString());
+        });
+        System.out.println("tolerated");
+        intolerated.getToleratedIngredients().forEach(ing->{
+            System.out.println(ing.getNameString());
+        });
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,options);
         intoleranceSpinner.setAdapter(adapter);
-        System.out.println(info.getIntolerances().size());
 
         intoleranceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 // when the user selects an author we request the authors book Data to choose from
-                currentIntolerance = Intolerances.valueOf(intoleranceSpinner.getSelectedItem().toString());
+                currentIntolerance = intoleranceMap.get(intoleranceSpinner.getSelectedItem().toString());
             }
 
             @Override

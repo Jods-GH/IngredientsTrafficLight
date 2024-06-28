@@ -1,28 +1,41 @@
 package com.example.intolerancetrafficlight;
 
+import java.util.List;
+
 public class Intolerance {
-    private String nameString;
-    private Integer ciqual_food_code;
+    List<ToleratedIngredient> toleratedIngredients;
+    List<ToleratedIngredient> intoleratedIngredients;
 
+    IntoleranceEnum intolerance;
 
-    public Intolerance(String nameString, Integer ciqual_food_code) {
-        this.nameString = nameString;
-        this.ciqual_food_code = ciqual_food_code;
+    Intolerance(IntoleranceEnum intolerance, List<ToleratedIngredient> intoleratedIngredients, List<ToleratedIngredient> toleratedIngredients){
+        this.intolerance = intolerance;
+        this.toleratedIngredients = toleratedIngredients;
+        this.intoleratedIngredients = intoleratedIngredients;
     }
 
-    public Integer getCiqual_food_code() {
-        return ciqual_food_code;
+
+    public List<ToleratedIngredient> getToleratedIngredients() {
+        return toleratedIngredients;
     }
 
-    public void setCiqual_food_code(Integer ciqual_food_code) {
-        this.ciqual_food_code = ciqual_food_code;
+    public void setToleratedIngredients(List<ToleratedIngredient> toleratedIngredients) {
+        this.toleratedIngredients = toleratedIngredients;
     }
 
-    public String getNameString() {
-        return nameString;
+    public List<ToleratedIngredient> getIntoleratedIngredients() {
+        return intoleratedIngredients;
     }
 
-    public void setNameString(String nameString) {
-        this.nameString = nameString;
+    public void setIntoleratedIngredients(List<ToleratedIngredient> intoleratedIngredients) {
+        this.intoleratedIngredients = intoleratedIngredients;
+    }
+
+    public IntoleranceEnum getIntolerance() {
+        return intolerance;
+    }
+
+    public void setIntolerance(IntoleranceEnum intolerance) {
+        this.intolerance = intolerance;
     }
 }
