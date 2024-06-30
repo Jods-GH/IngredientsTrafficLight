@@ -7,6 +7,18 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <ImageView
+        android:id="@+id/trafficLight"
+        android:layout_width="104dp"
+        android:layout_height="100dp"
+        android:foreground="@drawable/circle_none"
+        app:layout_constraintBottom_toTopOf="@+id/intoleranceSpinner"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/IngredientsScrollView"
+        app:layout_constraintVertical_bias="0.474"
+        app:srcCompat="@android:drawable/ic_notification_overlay" />
+
     <TextView
         android:id="@+id/BrandText"
         android:layout_width="wrap_content"
@@ -32,14 +44,13 @@
     <ScrollView
         android:id="@+id/IngredientsScrollView"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
+        android:layout_height="400dp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="40dp"
         android:layout_marginEnd="32dp"
-        android:layout_marginBottom="16dp"
         android:fadeScrollbars="false"
-        app:layout_constraintBottom_toTopOf="@+id/ScanButton"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/ProductText"
         app:layout_goneMarginTop="20dp">
@@ -69,8 +80,9 @@
         android:layout_height="23dp"
         app:layout_constraintBottom_toTopOf="@+id/ScanButton"
         app:layout_constraintEnd_toEndOf="@+id/IngredientsScrollView"
+        app:layout_constraintHorizontal_bias="0.444"
         app:layout_constraintStart_toStartOf="@+id/IngredientsScrollView"
         app:layout_constraintTop_toBottomOf="@+id/IngredientsScrollView"
-        app:layout_constraintVertical_bias="0.589" />
+        app:layout_constraintVertical_bias="0.806" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
