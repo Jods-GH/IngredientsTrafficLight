@@ -8,6 +8,14 @@
         {
             "nameString": "E420",
             "ciqualFoodCode": 0
+        },
+        {
+            "nameString": "Sorbitol",
+            "ciqualFoodCode": 0
+        },
+        {
+            "nameString": "Sorbitsirup",
+            "ciqualFoodCode": 0
         }
     ],
     "saveIngredients": [
