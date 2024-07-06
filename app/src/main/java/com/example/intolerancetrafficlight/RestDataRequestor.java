@@ -44,7 +44,6 @@ public class RestDataRequestor extends AsyncTask<String, Void, FoodInfo> {
     @Override
     protected void onPostExecute(FoodInfo info) {
         progressDialog.dismiss(); // disable progress dialog
-        System.out.println("postexecute");
         ((MainActivity)context).handleDataReturn(info);
     }
 
@@ -56,11 +55,9 @@ public class RestDataRequestor extends AsyncTask<String, Void, FoodInfo> {
 
     @Override
     protected FoodInfo doInBackground(String... strings) {
-        System.out.println(strings);
         for(String barcode:strings){
             //prepare url request
             String urlString = "https://world.openfoodfacts.org/api/v3/product/" + barcode + ".json";
-            System.out.println(urlString);
             FoodInfo info = new FoodInfo();
             try {
                 // open url connection
@@ -68,7 +65,6 @@ public class RestDataRequestor extends AsyncTask<String, Void, FoodInfo> {
                 System.out.println(url);
                 HttpURLConnection con = (HttpURLConnection) url.openConnection();
                 con.setRequestMethod("GET");
-                System.out.println(con.getResponseCode());
                 if (con.getResponseCode() == 200) {
                     // Success
                     // create Json String from input and convert it to JSonObject

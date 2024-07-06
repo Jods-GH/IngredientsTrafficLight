@@ -1,5 +1,7 @@
 package com.example.intolerancetrafficlight;
 
+import androidx.annotation.Nullable;
+
 public class ToleratedIngredient {
     private String nameString;
     private Integer ciqual_food_code;
@@ -35,5 +37,18 @@ public class ToleratedIngredient {
 
     public void setNameString(String nameString) {
         this.nameString = nameString;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if(!(obj instanceof ToleratedIngredient)){
+            return false;
+        }
+        ToleratedIngredient other = (ToleratedIngredient) obj;
+        if(this.getCiqual_food_code() !=0 && other.getCiqual_food_code() !=0 && this.getCiqual_food_code().equals(other.getCiqual_food_code()))
+            return true;
+        if(this.getNameString()!=null && other.getNameString() !=null &&  this.getNameString().toLowerCase().trim().equals(other.getNameString().toLowerCase().trim()))
+            return true;
+        return super.equals(obj);
     }
 }

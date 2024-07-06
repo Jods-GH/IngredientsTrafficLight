@@ -96,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
                         .startScan()
                         .addOnSuccessListener(
                                 barcode -> {
-                                    System.out.println(barcode.getDisplayValue());
                                     RestDataRequestor requestor = new RestDataRequestor(ctx);
                                     requestor.execute(barcode.getDisplayValue());
                                 })
@@ -127,11 +126,9 @@ public class MainActivity extends AppCompatActivity {
                 Intolerance intolerated = intolerances.getIntolerances().get(currentIntolerance);
                 TrafficLightColors colorToSet = null;
                 for (Ingredient ingredient : info.getIngredients()) {
-                    System.out.println(ingredient.getFoodCode());
                     Integer foodCode = ingredient.getFoodCode()!=null? Integer.parseInt(ingredient.getFoodCode()) : 0;
-                    ToleratedIngredient ingredientToCheck = new ToleratedIngredient(ingredient.getText(), foodCode, true);
-                    ToleratedIngredient ingredientToCheckNotTolerared = new ToleratedIngredient(ingredient.getText(), foodCode, false);
-                    if (intolerated.getIntoleratedIngredients().contains(ingredientToCheckNotTolerared)) {
+                    ToleratedIngredient ingredientToCheck = new ToleratedIngredient(ingredient.getText().toLowerCase().trim(), foodCode, Boolean.FALSE);
+                    if (intolerated.getIntoleratedIngredients().contains(ingredientToCheck)) {
                         colorToSet = TrafficLightColors.NOT_TOLERATED;
                         break;
                     }
@@ -182,7 +179,6 @@ public class MainActivity extends AppCompatActivity {
         Map<String, IntoleranceEnum> intoleranceMap = new HashMap<>();
         for(IntoleranceEnum intolerance:intolerances.getIntolerances().keySet()) {
             Locale localeToUse = currentLocale.getFirstMatch(info.supportecLocales.get(intolerance));
-            System.out.println(info.localizedNames);
             String localizedName = info.localizedNames.get(intolerance).get(localeToUse) != null ? info.localizedNames.get(intolerance).get(localeToUse) : intolerance.name();
             intoleranceMap.put(localizedName, intolerance);
             options.add(localizedName);

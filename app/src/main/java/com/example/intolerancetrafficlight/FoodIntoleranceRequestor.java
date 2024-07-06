@@ -52,6 +52,18 @@ public class FoodIntoleranceRequestor extends AsyncTask<IntoleranceEnum, Void, I
         progressDialog.dismiss(); // disable progress dialog
     }
 
+    private List<ToleratedIngredient> createIngredient(List<ToleratedIngredient> list, JSONObject thisObject ) throws JSONException {
+        ToleratedIngredient intoleranceIngredient = new ToleratedIngredient(thisObject.getString("nameString").toLowerCase().trim(),thisObject.getInt("ciqualFoodCode"),false);
+        list.add(intoleranceIngredient);
+        if(thisObject.has("ingredients")){
+            JSONArray ingredients = thisObject.getJSONArray("ingredients");
+            for (int i = 0; i< ingredients.length(); i++) {
+                createIngredient(list, ingredients.getJSONObject(i));
+            }
+        }
+        return list;
+    }
+
     @Override
     protected IntoleranceInfo doInBackground(IntoleranceEnum... intolerances) {
         Map<IntoleranceEnum, Intolerance> intInfoMap = new HashMap<IntoleranceEnum, Intolerance>();
@@ -86,14 +98,13 @@ public class FoodIntoleranceRequestor extends AsyncTask<IntoleranceEnum, Void, I
                     List<ToleratedIngredient> intolernacesList = new ArrayList<>();
                     for (int i= 0 ; i<ingredients.length();i++){
                         JSONObject thisObject = ingredients.getJSONObject(i);
-                        ToleratedIngredient intoleranceIngredient = new ToleratedIngredient(thisObject.getString("nameString"),thisObject.getInt("ciqualFoodCode"),false);
-                        intolernacesList.add(intoleranceIngredient);
+                        createIngredient(intolernacesList,thisObject);
                     }
                     JSONArray toleratedIngredients = jObject.getJSONArray ("saveIngredients");
                     List<ToleratedIngredient> tolernacesList = new ArrayList<>();
                     for (int i= 0 ; i<toleratedIngredients.length();i++){
                         JSONObject thisObject = toleratedIngredients.getJSONObject(i);
-                        ToleratedIngredient intoleranceIngredient = new ToleratedIngredient(thisObject.getString("nameString"),thisObject.getInt("ciqualFoodCode"),false);
+                        ToleratedIngredient intoleranceIngredient = new ToleratedIngredient(thisObject.getString("nameString").toLowerCase().trim(),thisObject.getInt("ciqualFoodCode"),false);
                         tolernacesList.add(intoleranceIngredient);
                     }
                     Intolerance intol = new Intolerance(intolerance,intolernacesList,tolernacesList);
