@@ -52,18 +52,6 @@ public class FoodIntoleranceRequestor extends AsyncTask<IntoleranceEnum, Void, I
         progressDialog.dismiss(); // disable progress dialog
     }
 
-    private List<ToleratedIngredient> createIngredient(List<ToleratedIngredient> list, JSONObject thisObject ) throws JSONException {
-        ToleratedIngredient intoleranceIngredient = new ToleratedIngredient(thisObject.getString("nameString").toLowerCase().trim(),thisObject.getInt("ciqualFoodCode"),false);
-        list.add(intoleranceIngredient);
-        if(thisObject.has("ingredients")){
-            JSONArray ingredients = thisObject.getJSONArray("ingredients");
-            for (int i = 0; i< ingredients.length(); i++) {
-                createIngredient(list, ingredients.getJSONObject(i));
-            }
-        }
-        return list;
-    }
-
     @Override
     protected IntoleranceInfo doInBackground(IntoleranceEnum... intolerances) {
         Map<IntoleranceEnum, Intolerance> intInfoMap = new HashMap<IntoleranceEnum, Intolerance>();
@@ -95,19 +83,20 @@ public class FoodIntoleranceRequestor extends AsyncTask<IntoleranceEnum, Void, I
                     if( version != JSON_VERSION)
                         throw new UnsupportedOperationException (String.format("Version of intolerance is not correct: expected %d got %d2",JSON_VERSION,version));
                     JSONArray ingredients = jObject.getJSONArray ("badIngredients");
-                    List<ToleratedIngredient> intolernacesList = new ArrayList<>();
+                    List<ToleratedIngredient> intolerancesList = new ArrayList<>();
                     for (int i= 0 ; i<ingredients.length();i++){
                         JSONObject thisObject = ingredients.getJSONObject(i);
-                        createIngredient(intolernacesList,thisObject);
+                        ToleratedIngredient intoleranceIngredient = new ToleratedIngredient(thisObject.getString("nameString").toLowerCase().trim(),thisObject.getInt("ciqualFoodCode"),false);
+                        intolerancesList.add(intoleranceIngredient);
                     }
                     JSONArray toleratedIngredients = jObject.getJSONArray ("saveIngredients");
-                    List<ToleratedIngredient> tolernacesList = new ArrayList<>();
+                    List<ToleratedIngredient> tolerabcesList = new ArrayList<>();
                     for (int i= 0 ; i<toleratedIngredients.length();i++){
                         JSONObject thisObject = toleratedIngredients.getJSONObject(i);
-                        ToleratedIngredient intoleranceIngredient = new ToleratedIngredient(thisObject.getString("nameString").toLowerCase().trim(),thisObject.getInt("ciqualFoodCode"),false);
-                        tolernacesList.add(intoleranceIngredient);
+                        ToleratedIngredient intoleranceIngredient = new ToleratedIngredient(thisObject.getString("nameString").toLowerCase().trim(),thisObject.getInt("ciqualFoodCode"),true);
+                        intolerancesList.add(intoleranceIngredient);
                     }
-                    Intolerance intol = new Intolerance(intolerance,intolernacesList,tolernacesList);
+                    Intolerance intol = new Intolerance(intolerance,intolerancesList,tolerabcesList);
 
                     JSONObject localizedNames = jObject.getJSONObject("localizedNames");
                     String[] locales = new String[localizedNames.length()];

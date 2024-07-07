@@ -53,6 +53,19 @@ public class RestDataRequestor extends AsyncTask<String, Void, FoodInfo> {
         progressDialog.dismiss(); // disable progress dialog
     }
 
+    private List<Ingredient> createIngredient(List<Ingredient> list, JSONObject thisObject) throws JSONException {
+        Ingredient ingredient = new Ingredient(thisObject);
+        list.add(ingredient);
+        if(thisObject.has("ingredients")){
+            JSONArray ingredients = thisObject.getJSONArray ("ingredients");
+            for (int i= 0 ; i<ingredients.length();i++){
+                JSONObject obj = ingredients.getJSONObject(i);
+                createIngredient(list, obj);
+            }
+        }
+        return list;
+    }
+
     @Override
     protected FoodInfo doInBackground(String... strings) {
         for(String barcode:strings){
@@ -82,8 +95,8 @@ public class RestDataRequestor extends AsyncTask<String, Void, FoodInfo> {
                         JSONArray ingredients = jObject.getJSONObject ("product").getJSONArray ("ingredients");
                         List<Ingredient> ingredientList = new ArrayList<>();
                         for (int i= 0 ; i<ingredients.length();i++){
-                            Ingredient ingredient = new Ingredient(ingredients.getJSONObject(i));
-                            ingredientList.add(ingredient);
+                            JSONObject ingredient = ingredients.getJSONObject(i);
+                            createIngredient(ingredientList,ingredient);
                         }
                         info.setIngredients(ingredientList);
                     }

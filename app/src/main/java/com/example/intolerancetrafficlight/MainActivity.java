@@ -126,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
                 Intolerance intolerated = intolerances.getIntolerances().get(currentIntolerance);
                 TrafficLightColors colorToSet = null;
                 for (Ingredient ingredient : info.getIngredients()) {
+                    System.out.println(ingredient.getText());
                     Integer foodCode = ingredient.getFoodCode()!=null? Integer.parseInt(ingredient.getFoodCode()) : 0;
                     ToleratedIngredient ingredientToCheck = new ToleratedIngredient(ingredient.getText().toLowerCase().trim(), foodCode, Boolean.FALSE);
                     if (intolerated.getIntoleratedIngredients().contains(ingredientToCheck)) {
